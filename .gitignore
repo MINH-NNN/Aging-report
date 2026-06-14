@@ -1,0 +1,16 @@
+# Credentials & secrets
+.env
+.env.*
+.greennode.json
+*.credentials.json
+.last_image
+
+# Output
+output/
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.vscode/
+.idea/

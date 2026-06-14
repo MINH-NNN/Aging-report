@@ -1,0 +1,21 @@
+# Secrets & credentials — KHÔNG bao giờ đưa vào image
+.env
+.env.*
+.greennode.json
+*.credentials.json
+
+# Output & temp
+output/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Git
+.git/
+.gitattributes
+
+# Editor
+.vscode/
+.idea/
+*.DS_Store

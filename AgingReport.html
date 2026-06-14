@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aging Report Agent</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+  .card { background: white; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.10); padding: 40px; width: 480px; max-width: 96vw; }
+  h1 { font-size: 22px; color: #1e293b; margin-bottom: 6px; }
+  .subtitle { color: #64748b; font-size: 14px; margin-bottom: 28px; }
+  label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+  .drop-zone {
+    border: 2px dashed #cbd5e1; border-radius: 10px; padding: 32px 20px;
+    text-align: center; cursor: pointer; transition: all .2s; margin-bottom: 20px;
+    background: #f8fafc;
+  }
+  .drop-zone:hover, .drop-zone.over { border-color: #2563eb; background: #eff6ff; }
+  .drop-zone .icon { font-size: 36px; margin-bottom: 8px; }
+  .drop-zone p { color: #64748b; font-size: 14px; }
+  .drop-zone .filename { color: #2563eb; font-weight: 600; margin-top: 6px; font-size: 14px; }
+  input[type=file] { display: none; }
+  .btn {
+    width: 100%; padding: 14px; border: none; border-radius: 10px;
+    background: #2563eb; color: white; font-size: 16px; font-weight: 600;
+    cursor: pointer; transition: background .2s;
+  }
+  .btn:hover:not(:disabled) { background: #1d4ed8; }
+  .btn:disabled { background: #93c5fd; cursor: not-allowed; }
+  .progress { display: none; margin-top: 20px; }
+  .progress-bar-wrap { background: #e2e8f0; border-radius: 99px; height: 8px; overflow: hidden; margin-bottom: 8px; }
+  .progress-bar { height: 100%; background: #2563eb; border-radius: 99px; width: 0; transition: width .3s; }
+  .status { font-size: 13px; color: #64748b; text-align: center; }
+  .error { color: #dc2626; font-size: 13px; margin-top: 12px; background: #fef2f2; padding: 10px 14px; border-radius: 8px; display: none; }
+  .success { color: #16a34a; font-size: 13px; margin-top: 12px; background: #f0fdf4; padding: 10px 14px; border-radius: 8px; display: none; }
+  .divider { border: none; border-top: 1px solid #e2e8f0; margin: 24px 0; }
+  .info { font-size: 12px; color: #94a3b8; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>📊 Aging Report Agent</h1>
+  <p class="subtitle">Upload file AR Excel để tạo báo cáo tự động</p>
+
+  <label>File AR Excel</label>
+  <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+    <div class="icon">📁</div>
+    <p>Kéo thả file vào đây hoặc <strong>nhấn để chọn</strong></p>
+    <div class="filename" id="fileName"></div>
+  </div>
+  <input type="file" id="fileInput" accept=".xlsx,.xls">
+
+  <button class="btn" id="runBtn" disabled onclick="runAgent()">▶ &nbsp;Tạo báo cáo</button>
+
+  <div class="progress" id="progress">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="bar"></div></div>
+    <div class="status" id="status">Đang xử lý...</div>
+  </div>
+
+  <div class="error" id="error"></div>
+  <div class="success" id="success"></div>
+
+  <hr class="divider">
+  <p class="info">Kết quả trả về file ZIP gồm: AR Master, SLA Tracker, SLA Dashboard và Email Drafts cho từng PIC.</p>
+</div>
+
+<script>
+const ENDPOINT = "https://endpoint-27eb5189-b34d-4ce1-9a2c-7fdbc97411b2.agentbase-runtime.aiplatform.vngcloud.vn";
+let selectedFile = null;
+
+// Drag & drop
+const drop = document.getElementById('dropZone');
+drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over'); });
+drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+drop.addEventListener('drop', e => {
+  e.preventDefault(); drop.classList.remove('over');
+  const f = e.dataTransfer.files[0];
+  if (f) setFile(f);
+});
+
+document.getElementById('fileInput').addEventListener('change', e => {
+  if (e.target.files[0]) setFile(e.target.files[0]);
+});
+
+function setFile(f) {
+  selectedFile = f;
+  document.getElementById('fileName').textContent = '✅ ' + f.name;
+  document.getElementById('runBtn').disabled = false;
+  hide('error'); hide('success');
+}
+
+async function runAgent() {
+  if (!selectedFile) return;
+
+  document.getElementById('runBtn').disabled = true;
+  show('progress');
+  hide('error'); hide('success');
+  animateBar();
+
+  const form = new FormData();
+  form.append('ar_file', selectedFile, selectedFile.name);
+
+  try {
+    setStatus('⏳ Đang gửi file lên server...');
+    const resp = await fetch(`${ENDPOINT}/process`, { method: 'POST', body: form });
+
+    if (!resp.ok) {
+      const txt = await resp.text();
+      let msg = `Lỗi ${resp.status}`;
+      try { msg = JSON.parse(txt).detail || msg; } catch {}
+      throw new Error(msg);
+    }
+
+    setStatus('⏳ Đang tải kết quả...');
+    const blob = await resp.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'AgingReport_output.zip';
+    a.click();
+    URL.revokeObjectURL(url);
+
+    setBar(100);
+    setStatus('✅ Hoàn thành!');
+    document.getElementById('success').style.display = 'block';
+    document.getElementById('success').textContent = '✅ Đã tải xong! Kiểm tra thư mục Downloads của bạn.';
+
+  } catch (err) {
+    setStatus('');
+    document.getElementById('error').style.display = 'block';
+    document.getElementById('error').textContent = '❌ ' + err.message;
+  } finally {
+    document.getElementById('runBtn').disabled = false;
+  }
+}
+
+let barInterval;
+function animateBar() {
+  let w = 0;
+  setBar(0);
+  barInterval = setInterval(() => {
+    w = Math.min(w + Math.random() * 3, 90);
+    setBar(w);
+  }, 400);
+}
+function setBar(v) {
+  clearInterval(barInterval);
+  document.getElementById('bar').style.width = v + '%';
+}
+function setStatus(t) { document.getElementById('status').textContent = t; }
+function show(id) { document.getElementById(id).style.display = 'block'; }
+function hide(id) { document.getElementById(id).style.display = 'none'; }
+</script>
+</body>
+</html>
