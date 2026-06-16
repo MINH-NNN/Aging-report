@@ -27,11 +27,11 @@ def parse_date(val):
 
 def get_aging_bucket(row_dict):
     buckets = [
-        ("Over 180 ngày", row_dict.get("over_180", 0) or 0),
-        ("91-180 ngày",   row_dict.get("91_180", 0) or 0),
-        ("61-90 ngày",    row_dict.get("61_90", 0) or 0),
-        ("31-60 ngày",    row_dict.get("31_60", 0) or 0),
-        ("1-30 ngày",     row_dict.get("1_30", 0) or 0),
+        ("Over 180 ngay", row_dict.get("over_180", 0) or 0),
+        ("91-180 ngay",   row_dict.get("91_180", 0) or 0),
+        ("61-90 ngay",    row_dict.get("61_90", 0) or 0),
+        ("31-60 ngay",    row_dict.get("31_60", 0) or 0),
+        ("1-30 ngay",     row_dict.get("1_30", 0) or 0),
         ("Current",       row_dict.get("current", 0) or 0),
     ]
     for label, amt in buckets:
@@ -41,7 +41,7 @@ def get_aging_bucket(row_dict):
 
 
 def parse_sheet(ws):
-    """Parse một sheet AR, trả về (records, report_date)."""
+    """Parse mot sheet AR, tra ve (records, report_date)."""
     header_row_idx = None
     for i, row in enumerate(ws.iter_rows(values_only=True), start=1):
         if row[0] == 'Code':
@@ -50,7 +50,7 @@ def parse_sheet(ws):
     if header_row_idx is None:
         return [], None
 
-    # Tìm ngày báo cáo — hỗ trợ cả tiếng Việt có/không dấu
+    # Tim ngay bao cao
     report_date = None
     for row in ws.iter_rows(min_row=1, max_row=header_row_idx - 1, values_only=True):
         cell = str(row[0] or "")
@@ -78,12 +78,23 @@ def parse_sheet(ws):
 
     def get(row, *candidates):
         idx = col(*candidates)
-        return row[idx] if idx is not None else None
+        return row[idx] if idx is not None and idx < len(row) else None
 
-    # PIC: tìm theo nhiều tên cột khác nhau, fallback cột cuối
+    # PIC: tim theo nhieu ten cot khac nhau, fallback cot cuoi
     pic_col = col("PIC", "Pic", "pic", "Nguoi phu trach", "PIC Name", "Sale Staff", "SaleStaff")
     if pic_col is None:
         pic_col = len(headers) - 1
+    else:
+        # Validate: neu cot tim duoc toan None trong data rows -> dung cot cuoi thay the
+        last_col = len(headers) - 1
+        if pic_col != last_col:
+            sample = [
+                row[pic_col] for row in ws.iter_rows(min_row=header_row_idx + 2, values_only=True)
+                if isinstance(row[0], (int, float))
+            ]
+            non_none = sum(1 for v in sample if v is not None and str(v).strip())
+            if non_none == 0 and last_col > pic_col:
+                pic_col = last_col
 
     records = []
     for row in ws.iter_rows(min_row=header_row_idx + 2, values_only=True):
@@ -111,7 +122,7 @@ def parse_sheet(ws):
             "91_180":          float(get(row, '91 - 180 days', '91-180 days', '91-180') or 0),
             "over_180":        float(get(row, 'Over 180 days', 'Over 180', '>180 days') or 0),
             "type":            get(row, 'Type', 'Loai'),
-            "pic":             row[pic_col] if pic_col is not None else None,
+            "pic":             row[pic_col] if pic_col is not None and pic_col < len(row) else None,
         }
         bucket_label, bucket_amt = get_aging_bucket(record)
         record["aging_bucket"] = bucket_label
@@ -124,7 +135,6 @@ def parse_sheet(ws):
 def parse_ar_file(filepath):
     wb = openpyxl.load_workbook(filepath, data_only=True)
 
-    # Ưu tiên sheet có "AR10" hoặc "Aging" trong tên; fallback sheet active
     target_sheets = [s for s in wb.sheetnames if "AR10" in s or "Aging" in s]
     if not target_sheets:
         target_sheets = [wb.active.title]
@@ -137,23 +147,23 @@ def parse_ar_file(filepath):
         if rdate and not report_date:
             report_date = rdate
 
-    # Group by PIC — nếu PIC trống thì dùng mã khách hàng làm key
+    # Group by PIC
     by_pic = {}
     for r in all_records:
         if r["pic"] and str(r["pic"]).strip():
             pic = str(r["pic"]).strip()
         else:
             name = str(r["name"]).strip() if r["name"] else ""
-            pic = f"{r['code']}-{name}" if name else str(r["code"])
+            pic = "{}-{}".format(r['code'], name) if name else str(r["code"])
         r["pic"] = pic
         if pic not in by_pic:
             by_pic[pic] = []
         by_pic[pic].append(r)
 
-    # Sort: quá hạn lâu nhất lên trước
+    # Sort: qua han lau nhat len truoc
     aging_order = {
-        "Over 180 ngày": 0, "91-180 ngày": 1, "61-90 ngày": 2,
-        "31-60 ngày": 3, "1-30 ngày": 4, "Current": 5, "N/A": 6
+        "Over 180 ngay": 0, "91-180 ngay": 1, "61-90 ngay": 2,
+        "31-60 ngay": 3, "1-30 ngay": 4, "Current": 5, "N/A": 6
     }
     for pic in by_pic:
         by_pic[pic].sort(key=lambda x: aging_order.get(x["aging_bucket"], 99))

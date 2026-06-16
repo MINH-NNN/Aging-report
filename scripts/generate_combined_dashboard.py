@@ -260,7 +260,7 @@ var ROWS=ROWS_PH;
     <div class="file-list" id="imp-flist"></div>
     <div class="prog-bar" id="imp-pb"><div class="prog-fill" id="imp-pf"></div></div>
     <div class="imp-status info" id="imp-st"></div>
-    <p style="font-size:11px;color:#9ca3af;margin-top:10px">&#9432; Requires server running at localhost:8080</p>
+    <p style="font-size:11px;color:#9ca3af;margin-top:10px">&#9432; Requires server running at agentbase endpoint</p>
   </div>
   <div class="modal-foot">
     <button class="btn-sec" onclick="closeImport()">Close</button>
@@ -516,7 +516,7 @@ async function doImport(){
 
   try{
     pf.style.width='50%';
-    var resp=await fetch('http://localhost:8080/api/process',{method:'POST',body:form});
+    var resp=await fetch('' + window.location.origin + '/api/process',{method:'POST',body:form});
     pf.style.width='80%';
     if(!resp.ok){var err=await resp.json().catch(function(){return{detail:'Server error'};});throw new Error(err.detail||'Server error');}
     var data=await resp.json();
@@ -539,7 +539,7 @@ async function doImport(){
 
 async function clearData(){
   if(!confirm('Clear all dashboard data? Reminder history will be preserved.'))return;
-  try{await fetch('http://localhost:8080/api/clear',{method:'POST'});}catch(e){}
+  try{await fetch('' + window.location.origin + '/api/clear',{method:'POST'});}catch(e){}
   ROWS=[];refresh();showToast('Dashboard cleared','success');
 }
 
