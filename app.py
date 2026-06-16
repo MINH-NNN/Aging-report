@@ -31,7 +31,18 @@ _load_env()
 # ── Tracker (lưu lịch sử nhắc nợ) ────────────────────────────────────────────
 _last_output_dir: str = ""
 _dashboard_html: str = ""
+_last_ar_by_pic: dict = {}   # lưu by_pic sau khi parse AR, dùng cho /send
+_last_report_date: str = "N/A"
 TRACKER_PATH = BASE_DIR / "debt_tracker.json"
+
+# Mapping PIC → email, load từ pic_emails.json, có thể update qua /api/upload-contacts
+def _load_pic_emails() -> dict:
+    p = BASE_DIR / "pic_emails.json"
+    if p.exists():
+        try: return json.loads(p.read_text(encoding="utf-8"))
+        except: pass
+    return {}
+_pic_emails: dict = _load_pic_emails()
 
 def load_tracker() -> dict:
     if TRACKER_PATH.exists():
@@ -176,7 +187,7 @@ async def process(files: List[UploadFile] = File(...)):
         all_parsed = []
 
         for upload in files:
-            safe_name = re.sub(r'[^\w\-_. ]', '_', upload.filename)
+            safe_name = re.sub(r'[^\w_. -]', '_', upload.filename)
             file_path = os.path.join(work_dir, safe_name)
             with open(file_path, "wb") as f:
                 f.write(await upload.read())
@@ -239,7 +250,7 @@ async def process(files: List[UploadFile] = File(...)):
 @app.post("/api/process")
 async def api_process(files: List[UploadFile] = File(...)):
     """Giống /process nhưng trả về JSON rows để cập nhật dashboard trực tiếp."""
-    global _last_output_dir, _dashboard_html
+    global _last_output_dir, _dashboard_html, _last_ar_by_pic
     work_dir = tempfile.mkdtemp()
     try:
         output_dir = Path(work_dir) / "output"
@@ -248,7 +259,7 @@ async def api_process(files: List[UploadFile] = File(...)):
         all_parsed = []
 
         for upload in files:
-            safe_name = re.sub(r'[^\w\-_. ]', '_', upload.filename)
+            safe_name = re.sub(r'[^\w_. -]', '_', upload.filename)
             file_path = os.path.join(work_dir, safe_name)
             with open(file_path, "wb") as f:
                 f.write(await upload.read())
@@ -273,6 +284,12 @@ async def api_process(files: List[UploadFile] = File(...)):
 
         if not all_parsed:
             raise HTTPException(status_code=422, detail="Khong nhan dang duoc loai file nao.")
+
+        # Lưu by_pic và report_date từ AR file cuối cùng được parse
+        for src in all_parsed:
+            if src.get("file_type") == "AR":
+                _last_ar_by_pic = src.get("by_pic", {})
+                _last_report_date = src.get("report_date", "N/A")
 
         combined_path = os.path.join(work_dir, "parsed_combined.json")
         Path(combined_path).write_text(
@@ -321,29 +338,166 @@ def api_clear():
     return {"status": "cleared"}
 
 
+@app.post("/api/upload-contacts")
+async def upload_contacts(file: UploadFile = File(...)):
+    """Upload file Mail Contact (.xlsx) để cập nhật mapping PIC → email cho session hiện tại."""
+    global _pic_emails
+    import openpyxl, io, csv as csv_mod
+    raw = await file.read()
+    fname = file.filename.lower()
+
+    rows_raw = []
+    if fname.endswith(".csv"):
+        text = raw.decode("utf-8-sig", errors="replace")
+        rows_raw = list(csv_mod.reader(text.splitlines()))
+    else:
+        wb = openpyxl.load_workbook(io.BytesIO(raw), data_only=True)
+        ws = wb.active
+        rows_raw = [[str(c).strip() if c is not None else "" for c in row]
+                    for row in ws.iter_rows(values_only=True)]
+
+    # Tìm header row có cột email/mail
+    header_idx = None
+    headers = []
+    for i, row in enumerate(rows_raw):
+        if any("mail" in str(v).lower() or "email" in str(v).lower() for v in row if v):
+            header_idx = i
+            headers = [str(v).strip() for v in row]
+            break
+
+    if header_idx is None:
+        raise HTTPException(status_code=422, detail="Không tìm thấy cột Email trong file.")
+
+    def find_col(*candidates):
+        for c in candidates:
+            for i, h in enumerate(headers):
+                if c.lower() in h.lower():
+                    return i
+        return None
+
+    pic_idx   = find_col("pic", "name", "ten", "contact")
+    email_idx = find_col("email", "mail")
+
+    if email_idx is None:
+        raise HTTPException(status_code=422, detail="Không tìm thấy cột Email.")
+
+    mapping = {}
+    for row in rows_raw[header_idx + 1:]:
+        if len(row) <= email_idx:
+            continue
+        email = str(row[email_idx]).strip()
+        if not email or "@" not in email:
+            continue
+        if pic_idx is not None and pic_idx < len(row) and row[pic_idx]:
+            key = str(row[pic_idx]).strip()
+        else:
+            key = email.split("@")[0]
+        if key:
+            mapping[key] = email
+
+    _pic_emails.update(mapping)
+    return {"status": "ok", "updated": len(mapping), "mapping": mapping}
+
+
+@app.get("/api/pic-template")
+def pic_template(pics: str = "[]"):
+    """Tạo file xlsx template cho danh sách PIC chưa có email."""
+    import openpyxl, io
+    try:
+        pic_list = json.loads(pics)
+    except Exception:
+        pic_list = []
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Mail Contact"
+    ws.append(["PIC", "Email"])
+    for p in pic_list:
+        ws.append([p, ""])
+    buf = io.BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+    from fastapi.responses import StreamingResponse
+    return StreamingResponse(
+        buf,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": "attachment; filename=mail_contact_template.xlsx"}
+    )
+
+
+@app.get("/api/pics")
+def get_pics():
+    """Trả về danh sách PIC có khoản overdue (bỏ Current) + trạng thái email."""
+    if not _last_ar_by_pic:
+        raise HTTPException(status_code=404, detail="Chưa có dữ liệu AR. Upload file trước.")
+    result = []
+    for pic, records in _last_ar_by_pic.items():
+        overdue = [r for r in records if r.get("aging_bucket") != "Current"]
+        if not overdue:
+            continue
+        result.append({
+            "pic":    pic,
+            "email":  _pic_emails.get(pic),
+            "count":  len(overdue),
+            "mapped": pic in _pic_emails,
+        })
+    return {"pics": result}
+
+
 @app.post("/send")
-async def send_emails_endpoint(
-    ar_file: UploadFile = File(..., description="File AR Excel (.xlsx)"),
-    dry_run: bool = False,
-):
-    """Gửi email nhắc thanh toán cho từng PIC qua Gmail."""
-    pic_emails_path = BASE_DIR / "pic_emails.json"
-    if not pic_emails_path.exists():
-        raise HTTPException(status_code=500, detail="Thiếu file pic_emails.json")
+async def send_emails_endpoint(request: dict = None):
+    """Gửi email cho các PIC được chọn. Body: {"pics": ["MinhNNN", ...], "dry_run": false}"""
+    from fastapi import Request
+    raise HTTPException(status_code=405, detail="Dùng /api/send thay thế")
+
+
+@app.post("/api/send")
+async def api_send(request_body: dict):
+    """Gửi email cho các PIC được chọn.
+    Body JSON: {"pics": ["MinhNNN", "QuyenNPT"], "dry_run": false}
+    """
+    global _last_report_date
+    if not _last_ar_by_pic:
+        raise HTTPException(status_code=404, detail="Chưa có dữ liệu AR. Upload file trước.")
+
+    selected_pics = request_body.get("pics", list(_last_ar_by_pic.keys()))
+    dry_run = request_body.get("dry_run", False)
+    pic_emails = _pic_emails
+
+    invoice_reminders = request_body.get("invoice_reminders", {})
+
+    # Lọc by_pic theo danh sách được chọn, chỉ giữ khoản overdue (bỏ Current)
+    filtered_by_pic = {}
+    for p, v in _last_ar_by_pic.items():
+        if p not in selected_pics:
+            continue
+        records = []
+        for r in v:
+            if r.get("aging_bucket") == "Current":
+                continue
+            rec = dict(r)
+            inv_key = str(rec.get("invoice_no") or "") or f"{rec.get('code','')}{rec.get('invoice_date','')}"
+            rec["reminder_count"] = invoice_reminders.get(inv_key, 1)
+            records.append(rec)
+        if records:
+            filtered_by_pic[p] = records
 
     work_dir = tempfile.mkdtemp()
     try:
-        ar_path = os.path.join(work_dir, "ar_input.xlsx")
-        with open(ar_path, "wb") as f:
-            f.write(await ar_file.read())
+        # Ghi tạm filtered data + pic_emails để send_emails.py đọc
+        filtered_path = os.path.join(work_dir, "filtered_by_pic.json")
+        filtered_emails_path = os.path.join(work_dir, "pic_emails.json")
+        Path(filtered_path).write_text(json.dumps({"by_pic": filtered_by_pic, "report_date": _last_report_date}, ensure_ascii=False), encoding="utf-8")
+        Path(filtered_emails_path).write_text(json.dumps(pic_emails, ensure_ascii=False), encoding="utf-8")
 
-        args = [ar_path, str(pic_emails_path)]
+        args = [filtered_path, filtered_emails_path, "--from-json"]
         if dry_run:
             args.append("--dry-run")
 
+        env = os.environ.copy()
+        env["PYTHONIOENCODING"] = "utf-8"
         result = subprocess.run(
             [sys.executable, str(SCRIPTS / "send_emails.py")] + args,
-            capture_output=True, text=True, encoding="utf-8"
+            capture_output=True, text=True, encoding="utf-8", env=env
         )
         if result.returncode != 0:
             raise HTTPException(status_code=500, detail=result.stderr.strip() or result.stdout.strip())
@@ -351,6 +505,76 @@ async def send_emails_endpoint(
         return {"status": "ok", "detail": result.stdout.strip()}
     finally:
         shutil.rmtree(work_dir, ignore_errors=True)
+
+
+GSHEET_CSV = "https://docs.google.com/spreadsheets/d/1k8dALKES9y70SGWlTGDwXR_lo5gPNE6g76qRagCJjEA/export?format=csv"
+
+@app.get("/api/sync-responses")
+def sync_responses():
+    """Fetch Google Form responses tu Google Sheet, tra ve mapping PIC name -> response data."""
+    import urllib.request as _req
+    import csv as _csv
+    import unicodedata
+
+    def norm(s: str) -> str:
+        """Chuẩn hóa: bỏ dấu, lower, bỏ khoảng trắng thừa — để match header tiếng Việt."""
+        s = unicodedata.normalize("NFD", s)
+        s = "".join(c for c in s if unicodedata.category(c) != "Mn")
+        return s.lower().strip()
+
+    try:
+        request = _req.Request(GSHEET_CSV, headers={"User-Agent": "Mozilla/5.0"})
+        with _req.urlopen(request, timeout=15) as r:
+            raw = r.read().decode("utf-8-sig", errors="replace")
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Khong tai duoc Google Sheet: {e}")
+
+    rows = list(_csv.reader(raw.splitlines()))
+    if not rows:
+        return {"responses": {}, "total": 0}
+
+    headers = [str(v).strip() for v in rows[0]]
+    headers_norm = [norm(h) for h in headers]
+
+    def find_col(*keywords):
+        for kw in keywords:
+            kw_n = norm(kw)
+            for i, h in enumerate(headers_norm):
+                if kw_n in h:
+                    return i
+        return None
+
+    name_idx      = find_col("ho va ten", "ho ten", "name", "ten")
+    nguyen_idx    = find_col("nguyen nhan", "ly do")
+    ngay_idx      = find_col("ngay du kien", "ngay thanh toan")
+    sotien_idx    = find_col("so tien", "tien du kien")
+    ghichu_idx    = find_col("ghi chu khac", "ghi chu")
+    timestamp_idx = find_col("timestamp", "thoi gian")
+
+    if name_idx is None:
+        # Debug: trả về headers để dễ kiểm tra
+        raise HTTPException(status_code=422, detail=f"Khong tim thay cot 'Ho va ten'. Headers: {headers}")
+
+    def get_val(row, idx):
+        return str(row[idx]).strip() if idx is not None and idx < len(row) else ""
+
+    result = {}
+    for row in rows[1:]:
+        if not any(row):
+            continue
+        name = get_val(row, name_idx)
+        if not name:
+            continue
+        # Dùng name gốc làm key để match với row.pic trong dashboard
+        result[name] = {
+            "timestamp":    get_val(row, timestamp_idx),
+            "nguyen_nhan":  get_val(row, nguyen_idx),
+            "ngay_du_kien": get_val(row, ngay_idx),
+            "so_tien":      get_val(row, sotien_idx),
+            "ghi_chu":      get_val(row, ghichu_idx),
+        }
+
+    return {"responses": result, "total": len(result), "headers": headers}
 
 
 if __name__ == "__main__":

@@ -200,19 +200,15 @@ tr:hover td{background:#f8fafc}
     
   </div>
   <div class="hdr-right">
-    <div class="hdr-meta">
-      <div>Report date: <span id="rdate">REPORT_DATE_PH</span></div>
-      <div>Viewed: TODAY_PH</div>
-    </div>
     <button class="btn-hdr btn-imp" onclick="openImport()">&#8673; Import</button>
     <button class="btn-hdr btn-exp" onclick="exportExcel()">&#8675; Export</button>
-    <button class="btn-hdr" style="background:#64748b;color:white" onclick="clearData()">&#128465; Clear Data</button>
+    <button class="btn-hdr" style="background:#7c3aed;color:white" onclick="openSendMail()">&#9993; G&#7917;i Mail</button>
   </div>
 </div>
 <div class="body">
 <script>
 var ROWS=ROWS_PH;
-(function(){try{var s=localStorage.getItem('cnresp');if(s){var m=JSON.parse(s);ROWS.forEach(function(r){var k=r.invoice||(r.entity+'|'+r.inv_date);if(m[k]){r.email_sent=m[k].e||'';r.pic_resp=m[k].p||r.pic_resp;r.ghi_chu=m[k].g||'';}});}}catch(e){}})();
+(function(){try{var s=localStorage.getItem('cnresp');if(s){var m=JSON.parse(s);ROWS.forEach(function(r){var k=r.invoice||(r.entity+'|'+r.inv_date);if(m[k]){r.email_sent=m[k].e||'';r.pic_resp=m[k].p||r.pic_resp;r.ghi_chu=m[k].g||'';if(m[k].rc)r.reminder_count=m[k].rc;}});}}catch(e){}})();
 </script>
 <div class="sec-title" style="font-size:13px">PAYMENT SLA</div>
 <div id="pc"></div>
@@ -334,7 +330,7 @@ function renderCards(rows){
       else{s5++;v5+=r.amount;}
     }
     var p=r.pic_resp;
-    if(p==='Da phan hoi dung han')ro++;
+    if(p==='Responded')ro++;
     else if(p==='Dang cho phan hoi')rw++;
     else if(p==='Vi pham / Khong phan hoi')rb++;
     else rn++;
@@ -396,8 +392,8 @@ function renderTable(rows){
     var rc_str=(r.reminder_count||0)+'/3';
     var rc_cls=r.reminder_count>=3?'bad':r.reminder_count>=2?'warn':r.reminder_count>=1?'':'unk';
     h+='<td class="'+rc_cls+'">'+rc_str+'</td>';
-    h+='<td><span class="editable" title="Click to edit" onclick="editCell('+ri+',\'email_sent\',this)">'+(r.email_sent||'—')+'</span></td>';
-    h+='<td class="'+rc2+'"><span class="editable" title="Click to edit" onclick="editPicResp('+ri+',this)">'+r.pic_resp+'</span></td>';
+    h+='<td>'+(r.email_sent||'—')+'</td>';
+    h+='<td class="'+rc2+'">'+r.pic_resp+'</td>';
     h+='<td><span class="editable" title="Click to edit" onclick="editCell('+ri+',\'ghi_chu\',this)">'+(r.ghi_chu||'—')+'</span></td>';
     h+='<td style="font-size:11px;color:#9ca3af">'+r.source+'</td>';
     h+='</tr>';
@@ -442,7 +438,7 @@ function editPicResp(ri,el){
   sel.addEventListener('change',save);sel.addEventListener('blur',save);
 }
 function saveLocal(){
-  try{var m={};ROWS.forEach(function(r){if(r.email_sent||r.pic_resp!=='Chua gui mail'||r.ghi_chu){var k=r.invoice||(r.entity+'|'+r.inv_date);m[k]={e:r.email_sent,p:r.pic_resp,g:r.ghi_chu};}});localStorage.setItem('cnresp',JSON.stringify(m));}catch(e){}
+  try{var m={};ROWS.forEach(function(r){var k=r.invoice||(r.entity+'|'+r.inv_date);m[k]={e:r.email_sent||'',p:r.pic_resp||'',g:r.ghi_chu||'',rc:r.reminder_count||0};});localStorage.setItem('cnresp',JSON.stringify(m));}catch(e){}
 }
 
 /* sort */
@@ -508,7 +504,7 @@ async function doImport(){
   ROWS.forEach(function(r){
     var k=r.invoice||(r.entity+'|'+r.inv_date);
     if(r.email_sent||r.pic_resp!=='Chua gui mail'||r.ghi_chu)
-      respMap[k]={e:r.email_sent,p:r.pic_resp,g:r.ghi_chu};
+      respMap[k]={e:r.email_sent,p:r.pic_resp,g:r.ghi_chu,rc:r.reminder_count||0};
   });
 
   var form=new FormData();
@@ -526,7 +522,7 @@ async function doImport(){
     resetSels();
     ROWS.forEach(function(r){
       var k=r.invoice||(r.entity+'|'+r.inv_date);
-      if(respMap[k]){r.email_sent=respMap[k].e||'';r.pic_resp=respMap[k].p||r.pic_resp;r.ghi_chu=respMap[k].g||'';}
+      if(respMap[k]){r.email_sent=respMap[k].e||'';r.pic_resp=respMap[k].p||r.pic_resp;r.ghi_chu=respMap[k].g||'';if(respMap[k].rc)r.reminder_count=respMap[k].rc;}
     });
     saveLocal();refresh();
     st.className='imp-status ok';st.textContent='Updated '+ROWS.length+' items.';
@@ -548,7 +544,283 @@ document.addEventListener('DOMContentLoaded',function(){
   ['f-loai','f-pic','f-psla','f-resp'].forEach(function(id){document.getElementById(id).addEventListener('change',refresh);});
   document.getElementById('f-q').addEventListener('input',refresh);
   refresh();
+  setTimeout(autoSync, 2000);
 });
+</script>
+
+<!-- Modal Gửi Mail -->
+<div id="send-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h2>&#9993; G&#7917;i Mail Nh&#7855;c C&#244;ng N&#7907;</h2>
+      <button class="modal-close" onclick="closeSendMail()">&#215;</button>
+    </div>
+    <div class="modal-body">
+      <div style="margin-bottom:12px;padding:10px 12px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;display:flex;align-items:center;gap:10px">
+        <span style="font-size:13px;color:#374151">📋 Mail Contact:</span>
+        <label style="cursor:pointer;background:#2563eb;color:white;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600">
+          Upload xlsx
+          <input type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="uploadContacts(this)">
+        </label>
+        <span id="contact-status" style="font-size:12px;color:#64748b"></span>
+      </div>
+      <div id="send-loading" style="text-align:center;padding:20px;color:#64748b">&#8987; Đang tải danh sách PIC...</div>
+      <div id="send-list" style="display:none">
+        <label style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #e2e8f0;font-weight:600;cursor:pointer">
+          <input type="checkbox" id="chk-all" onchange="toggleAll(this)"> Chọn tất cả
+        </label>
+        <div id="pic-checkboxes" style="margin-top:8px;max-height:300px;overflow-y:auto"></div>
+      </div>
+      <div id="send-result" style="margin-top:12px;font-size:13px"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-sec" onclick="closeSendMail()">Đóng</button>
+      <button class="btn-main" id="send-btn" disabled onclick="doSendMail()">&#9993; Gửi Mail</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function parseVNDate(s){
+  if(!s)return null;
+  var m=s.match(/(\d+):(\d+)\s+(\d+)\/(\d+)\/(\d+)/);
+  if(!m)return null;
+  return new Date(+m[5],+m[4]-1,+m[3],+m[1],+m[2]);
+}
+function addBizDays(date,days){
+  var d=new Date(date),added=0;
+  while(added<days){d.setDate(d.getDate()+1);if(d.getDay()!==0&&d.getDay()!==6)added++;}
+  return d;
+}
+function openSendMail(){
+  var ov=document.getElementById('send-ov');
+  ov.style.display='flex';
+  document.getElementById('send-loading').style.display='block';
+  document.getElementById('send-list').style.display='none';
+  document.getElementById('send-result').textContent='';
+  document.getElementById('send-btn').disabled=true;
+  // Build picState từ ROWS (email_sent, reminder_count per PIC)
+  var picState={};
+  ROWS.forEach(function(row){
+    if(!picState[row.pic]||( row.reminder_count||0)>(picState[row.pic].rc||0)){
+      picState[row.pic]={email_sent:row.email_sent,rc:row.reminder_count||0};
+    }
+  });
+  fetch(window.location.origin+'/api/pics')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      document.getElementById('send-loading').style.display='none';
+      document.getElementById('send-list').style.display='block';
+      var box=document.getElementById('pic-checkboxes');
+      box.innerHTML='';
+      document.getElementById('chk-all').checked=false;
+      var mapped=( data.pics||[]).filter(function(p){return p.mapped;});
+      var unmapped=(data.pics||[]).filter(function(p){return !p.mapped;});
+      mapped.forEach(function(p){
+        var ps=picState[p.pic]||{};
+        var sentDate=parseVNDate(ps.email_sent||'');
+        var rc=ps.rc||0;
+        var blocked=false,unblockDate=null;
+        if(sentDate){
+          var nextOk=addBizDays(sentDate,3);
+          if(new Date()<nextOk){blocked=true;unblockDate=nextOk;}
+        }
+        var label=document.createElement('label');
+        label.style.cssText='display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:13px;'+(blocked?'opacity:.5;cursor:not-allowed':'cursor:pointer');
+        var rcBadge=rc>0?'<span style="background:#dbeafe;color:#1d4ed8;border-radius:4px;padding:1px 6px;font-size:11px;margin-left:4px">Lần '+rc+'</span>':'';
+        var slaNote=blocked?'<span style="color:#dc2626;font-size:11px;margin-left:6px">⏱ Gửi lại sau '+unblockDate.toLocaleDateString("vi-VN")+'</span>':'';
+        label.innerHTML='<input type="checkbox" class="pic-chk" value="'+p.pic+'"'+(blocked?' disabled':'')+'>'
+          +'<span style="flex:1"><strong>'+p.pic+'</strong>'+rcBadge+' <span style="color:#166534;font-size:12px">'+p.email+'</span>'+slaNote+'</span>'
+          +'<span style="color:#94a3b8;font-size:12px">'+p.count+' invoice</span>';
+        box.appendChild(label);
+      });
+      if(unmapped.length>0){
+        var sep=document.createElement('div');
+        sep.style.cssText='margin-top:10px;padding:8px 10px;background:#fef9c3;border-radius:6px;font-size:12px;color:#854d0e;display:flex;align-items:center;justify-content:space-between';
+        sep.innerHTML='<span>⚠️ '+unmapped.length+' PIC chưa có email ('+unmapped.map(function(p){return p.pic;}).join(', ')+') — sẽ bỏ qua khi gửi</span>'
+          +'<button id="dl-tpl-btn" style="background:#d97706;color:white;border:none;border-radius:4px;padding:3px 10px;font-size:11px;cursor:pointer">Tải template</button>';
+        box.appendChild(sep);
+        document.getElementById('dl-tpl-btn').addEventListener('click',function(){
+          downloadTemplate(unmapped.map(function(p){return p.pic;}));
+        });
+      }
+      updateSendBtn();
+    })
+    .catch(function(){
+      document.getElementById('send-loading').textContent='❌ Lỗi tải danh sách PIC. Upload file AR trước.';
+    });
+}
+
+function downloadTemplate(pics){
+  var url=window.location.origin+'/api/pic-template?pics='+encodeURIComponent(JSON.stringify(pics));
+  var a=document.createElement('a');a.href=url;a.download='mail_contact_template.xlsx';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+function uploadContacts(input){
+  var f=input.files[0];if(!f)return;
+  var st=document.getElementById('contact-status');
+  st.textContent='⏳ Đang upload...';
+  var fd=new FormData();fd.append('file',f);
+  fetch(window.location.origin+'/api/upload-contacts',{method:'POST',body:fd})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      st.textContent='✅ Cập nhật '+d.updated+' PIC';
+      // Reload danh sách PIC
+      openSendMail();
+    })
+    .catch(function(){st.textContent='❌ Lỗi upload';});
+}
+function closeSendMail(){document.getElementById('send-ov').style.display='none';}
+
+function toggleAll(chk){
+  document.querySelectorAll('.pic-chk:not(:disabled)').forEach(function(c){c.checked=chk.checked;});
+  updateSendBtn();
+}
+
+document.addEventListener('change',function(e){if(e.target.classList.contains('pic-chk'))updateSendBtn();});
+
+function updateSendBtn(){
+  var any=document.querySelectorAll('.pic-chk:checked').length>0;
+  document.getElementById('send-btn').disabled=!any;
+  var all=document.querySelectorAll('.pic-chk:not(:disabled)').length;
+  var checked=document.querySelectorAll('.pic-chk:not(:disabled):checked').length;
+  document.getElementById('chk-all').checked=all>0&&all===checked;
+}
+
+function doSendMail(){
+  var selected=[];
+  document.querySelectorAll('.pic-chk:checked').forEach(function(c){selected.push(c.value);});
+  if(!selected.length)return;
+  if(!confirm('Xác nhận gửi mail đến '+selected.length+' PIC: '+selected.join(', ')+'?'))return;
+  document.getElementById('send-btn').disabled=true;
+  document.getElementById('send-result').innerHTML='<span style="color:#2563eb">⏳ Đang gửi...</span>';
+  // invoice_reminders: {invoice_key: reminder_count} — per invoice
+  var invoiceReminders={};
+  ROWS.forEach(function(row){
+    if(selected.indexOf(row.pic)>=0){
+      var k=row.invoice||(row.entity+'|'+row.inv_date);
+      invoiceReminders[k]=(row.reminder_count||0)+1;
+    }
+  });
+  fetch(window.location.origin+'/api/send',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({pics:selected,dry_run:false,invoice_reminders:invoiceReminders})
+  })
+  .then(function(r){return r.json();})
+  .then(function(d){
+    document.getElementById('send-result').innerHTML='<span style="color:#16a34a">✅ '+d.detail+'</span>';
+    document.getElementById('send-btn').disabled=false;
+    // Cập nhật email_sent cho các row thuộc PIC vừa gửi
+    var now=new Date().toLocaleString('vi-VN',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    var picSet=new Set(selected);
+    ROWS.forEach(function(row){
+      if(picSet.has(row.pic)){
+        row.email_sent=now;
+        row.reminder_count=(row.reminder_count||0)+1;
+        if(row.pic_resp==='Not Reminded')row.pic_resp='Awaiting';
+      }
+    });
+    saveLocal();refresh();
+  })
+  .catch(function(e){
+    document.getElementById('send-result').innerHTML='<span style="color:#dc2626">❌ Lỗi: '+e.message+'</span>';
+    document.getElementById('send-btn').disabled=false;
+  });
+}
+
+function showToast(msg,type){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+(type||'success');t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},3000);
+}
+
+function normName(s){
+  // Bỏ dấu, lower, trim — để match tên PIC dù có/không dấu
+  return (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
+}
+
+var _autoSending=false; // guard tránh gửi đồng thời
+
+async function syncFormResponses(){
+  try{
+    var r=await fetch(window.location.origin+'/api/sync-responses');
+    if(!r.ok){var e=await r.json().catch(function(){return{detail:'Server error'};});throw new Error(e.detail||'Server error');}
+    var d=await r.json();
+    var resp=d.responses||{};
+    var respNorm={};
+    Object.keys(resp).forEach(function(k){respNorm[normName(k)]=resp[k];});
+    // Step 1: Sync "Responded" từ Google Sheet
+    ROWS.forEach(function(row){
+      if(!row.email_sent)return;
+      var rd=respNorm[normName(row.pic)];
+      if(rd){
+        row.pic_resp='Responded';
+        var notes=[];
+        if(rd.nguyen_nhan)notes.push(rd.nguyen_nhan);
+        if(rd.ngay_du_kien)notes.push('Dự kiến: '+rd.ngay_du_kien);
+        if(rd.so_tien)notes.push('Số tiền: '+rd.so_tien);
+        if(rd.ghi_chu)notes.push(rd.ghi_chu);
+        if(notes.length)row.ghi_chu=notes.join(' | ');
+      }
+    });
+    // Step 2: Auto-set "No Response" nếu quá 3 ngày làm việc chưa phản hồi
+    var now=new Date();
+    ROWS.forEach(function(row){
+      if(!row.email_sent)return;
+      if(row.pic_resp==='Responded'||row.pic_resp==='No Response')return;
+      var sentDate=parseVNDate(row.email_sent);
+      if(sentDate&&now>=addBizDays(sentDate,3)){
+        row.pic_resp='No Response';
+      }
+    });
+    saveLocal();refresh();
+    // Step 3: Auto-send cho PIC "No Response" còn dưới 3 lần nhắc
+    if(_autoSending)return;
+    var seen=new Set(),picsToSend=[];
+    ROWS.forEach(function(row){
+      if(row.pic_resp==='No Response'&&(row.reminder_count||0)<3&&!seen.has(row.pic)){
+        seen.add(row.pic);picsToSend.push(row.pic);
+      }
+    });
+    if(!picsToSend.length)return;
+    _autoSending=true;
+    var invoiceReminders={};
+    ROWS.forEach(function(row){
+      if(picsToSend.indexOf(row.pic)>=0){
+        var k=row.invoice||(row.entity+'|'+row.inv_date);
+        invoiceReminders[k]=(row.reminder_count||0)+1;
+      }
+    });
+    fetch(window.location.origin+'/api/send',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({pics:picsToSend,dry_run:false,invoice_reminders:invoiceReminders})
+    })
+    .then(function(res){return res.json();})
+    .then(function(){
+      var nowStr=new Date().toLocaleString('vi-VN',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+      var picSet=new Set(picsToSend);
+      ROWS.forEach(function(row){
+        if(picSet.has(row.pic)){
+          row.email_sent=nowStr;
+          row.reminder_count=(row.reminder_count||0)+1;
+          row.pic_resp='Awaiting';
+        }
+      });
+      saveLocal();refresh();
+      showToast('Tự động gửi nhắc cho '+picsToSend.length+' PIC: '+picsToSend.join(', '),'success');
+    })
+    .catch(function(){})
+    .finally(function(){_autoSending=false;});
+  }catch(e){
+    // silent fail
+  }
+}
+
+function autoSync(){
+  if(ROWS.length>0)syncFormResponses();
+}
+setInterval(autoSync, 10*1000);
 </script>
 </body></html>"""
     return html \
@@ -591,9 +863,4 @@ if __name__ == "__main__":
             sources = [data]
         rdates = [s.get("report_date","") for s in sources if s.get("report_date","")]
         report_date = ", ".join(sorted(set(rdates))) if rdates else today.strftime("%d/%m/%Y")
-        today_str = datetime.now().strftime("%d/%m/%Y %H:%M")
-        rows = normalize(sources, today)
-        records_json = json.dumps(rows, ensure_ascii=False)
-        html = build_html(records_json, report_date, today_str)
-        Path(out_path).write_text(html, encoding="utf-8")
-        print(f"Dashboard saved: {out_path}", file=sys.stderr)
+        today_s

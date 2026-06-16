@@ -244,41 +244,41 @@ while True:
         break
     page += 1
 
+# Đọc credentials từ .env local để truyền vào runtime
+env_vars = {}
+env_path = os.path.join(os.path.dirname(__file__), ".env")
+if os.path.exists(env_path):
+    for line in open(env_path).read().splitlines():
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            k, v = line.split("=", 1)
+            env_vars[k.strip()] = v.strip()
+    ok(f"Đọc {len(env_vars)} biến từ .env: {', '.join(env_vars.keys())}")
+else:
+    warn(".env không tìm thấy — tính năng gửi mail sẽ không hoạt động")
+
+runtime_payload = {
+    "description": "Aging Report Agent — AR Excel processing",
+    "imageUrl":    IMAGE_FULL,
+    "imageAuth":   image_auth,
+    "flavorId":    FLAVOR,
+    "command":     [],
+    "args":        [],
+    "environmentVariables": env_vars,
+    "autoscaling": {
+        "minReplicas":       1,
+        "maxReplicas":       1,
+        "cpuUtilization":    50,
+        "memoryUtilization": 50,
+    },
+}
+
 if RUNTIME_ID:
     warn(f"Runtime '{RUNTIME_NAME}' đã tồn tại (id={RUNTIME_ID}) → UPDATE")
-    ab("PATCH", f"/agent-runtimes/{RUNTIME_ID}", payload={
-        "description": "Aging Report Agent — AR Excel processing",
-        "imageUrl":    IMAGE_FULL,
-        "imageAuth":   image_auth,
-        "flavorId":    FLAVOR,
-        "command":     [],
-        "args":        [],
-        "environmentVariables": {},
-        "autoscaling": {
-            "minReplicas":       1,
-            "maxReplicas":       1,
-            "cpuUtilization":    50,
-            "memoryUtilization": 50,
-        },
-    })
+    ab("PATCH", f"/agent-runtimes/{RUNTIME_ID}", payload=runtime_payload)
 else:
     log(f"Tạo runtime mới: {RUNTIME_NAME}")
-    resp = ab("POST", "/agent-runtimes", payload={
-        "name":        RUNTIME_NAME,
-        "description": "Aging Report Agent — AR Excel processing",
-        "imageUrl":    IMAGE_FULL,
-        "imageAuth":   image_auth,
-        "flavorId":    FLAVOR,
-        "command":     [],
-        "args":        [],
-        "environmentVariables": {},
-        "autoscaling": {
-            "minReplicas":       1,
-            "maxReplicas":       1,
-            "cpuUtilization":    50,
-            "memoryUtilization": 50,
-        },
-    })
+    resp = ab("POST", "/agent-runtimes", payload={"name": RUNTIME_NAME, **runtime_payload})
     RUNTIME_ID = (resp.get("data") or resp).get("id")
     if not RUNTIME_ID:
         err(f"Không lấy được runtime ID: {resp}")
@@ -305,16 +305,40 @@ else:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# STEP 9 — Lấy endpoint URL
+# STEP 9 — Tạo / lấy Public Endpoint
 # ══════════════════════════════════════════════════════════════════════════════
-step(9, "Lấy endpoint URL")
+step(9, "Tạo / lấy Public Endpoint")
 eps = ab("GET", f"/agent-runtimes/{RUNTIME_ID}/endpoints")
 ep_list = eps.get("listData") or (eps.get("data") or {}).get("listData") or []
+
 endpoint_url = None
 for ep in ep_list:
-    if ep.get("name") == "DEFAULT" or ep.get("type") == "DEFAULT":
+    ep_type = (ep.get("type") or "").upper()
+    ep_access = (ep.get("accessType") or ep.get("access") or "").upper()
+    if "PUBLIC" in ep_type or "PUBLIC" in ep_access:
         endpoint_url = ep.get("url")
+        ok(f"Public endpoint đã tồn tại: {endpoint_url}")
         break
+
+if not endpoint_url:
+    log("Chưa có public endpoint, thử tạo mới...")
+    try:
+        ep_resp = ab("POST", f"/agent-runtimes/{RUNTIME_ID}/endpoints", payload={
+            "name":       "public",
+            "type":       "PUBLIC",
+            "accessType": "PUBLIC",
+            "port":       8080,
+        })
+        endpoint_url = (ep_resp.get("data") or ep_resp).get("url")
+        if endpoint_url:
+            ok(f"Tạo public endpoint thành công: {endpoint_url}")
+        else:
+            warn("API không trả về URL — kiểm tra Console để lấy endpoint")
+            warn("https://aiplatform.console.vngcloud.vn/agent-runtime?tab=runtime")
+    except Exception as e:
+        warn(f"Không tạo được public endpoint qua API: {e}")
+        warn("Vào Console → runtime aging-report-agent → Endpoints → thêm PUBLIC endpoint")
+
 if not endpoint_url and ep_list:
     endpoint_url = ep_list[0].get("url", "")
 
