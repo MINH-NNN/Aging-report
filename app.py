@@ -27,7 +27,20 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-SCRIPTS = Path(__file__).parent / "scripts"
+SCRIPTS  = Path(__file__).parent / "scripts"
+BASE_DIR = Path(__file__).parent
+
+# Đọc .env
+def _load_env():
+    env_path = BASE_DIR / ".env"
+    if env_path.exists():
+        for line in env_path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                k, v = line.split("=", 1)
+                os.environ.setdefault(k.strip(), v.strip())
+
+_load_env()
 
 
 def run_script(script_name, args):
@@ -242,6 +255,38 @@ async def process(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/send")
+async def send_emails_endpoint(
+    ar_file: UploadFile = File(..., description="File AR Excel (.xlsx)"),
+    dry_run: bool = False,
+):
+    """Gửi email nhắc thanh toán cho từng PIC qua Gmail."""
+    pic_emails_path = BASE_DIR / "pic_emails.json"
+    if not pic_emails_path.exists():
+        raise HTTPException(status_code=500, detail="Thiếu file pic_emails.json")
+
+    work_dir = tempfile.mkdtemp()
+    try:
+        ar_path = os.path.join(work_dir, "ar_input.xlsx")
+        with open(ar_path, "wb") as f:
+            f.write(await ar_file.read())
+
+        args = [ar_path, str(pic_emails_path)]
+        if dry_run:
+            args.append("--dry-run")
+
+        result = subprocess.run(
+            [sys.executable, str(SCRIPTS / "send_emails.py")] + args,
+            capture_output=True, text=True
+        )
+        if result.returncode != 0:
+            raise HTTPException(status_code=500, detail=result.stderr.strip() or result.stdout.strip())
+
+        return {"status": "ok", "detail": result.stdout.strip()}
+    finally:
+        shutil.rmtree(work_dir, ignore_errors=True)
 
 
 if __name__ == "__main__":
