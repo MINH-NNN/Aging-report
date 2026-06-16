@@ -1,0 +1,644 @@
+{
+  "1797014|A": {
+    "entity": "A",
+    "invoice": 1797014,
+    "reminder_count": 0,
+    "history": []
+  },
+  "1797015|A": {
+    "entity": "A",
+    "invoice": 1797015,
+    "reminder_count": 0,
+    "history": []
+  },
+  "1797016|A": {
+    "entity": "A",
+    "invoice": 1797016,
+    "reminder_count": 0,
+    "history": []
+  },
+  "1797017|A": {
+    "entity": "A",
+    "invoice": 1797017,
+    "reminder_count": 0,
+    "history": []
+  },
+  "1797018|A": {
+    "entity": "A",
+    "invoice": 1797018,
+    "reminder_count": 0,
+    "history": []
+  },
+  "1797019|A": {
+    "entity": "A",
+    "invoice": 1797019,
+    "reminder_count": 0,
+    "history": []
+  },
+  "1797020|A": {
+    "entity": "A",
+    "invoice": 1797020,
+    "reminder_count": 0,
+    "history": []
+  },
+  "1797021|A": {
+    "entity": "A",
+    "invoice": 1797021,
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2510_0039|CÔNG TY E": {
+    "entity": "CÔNG TY E",
+    "invoice": "PT_2510_0039",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2512_007|CÔNG TY CD": {
+    "entity": "CÔNG TY CD",
+    "invoice": "PT_2512_007",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2601_00227|CÔNG TY CD": {
+    "entity": "CÔNG TY CD",
+    "invoice": "PT_2601_00227",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2512_0014|KL": {
+    "entity": "KL",
+    "invoice": "PT_2512_0014",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2512_0021|KL": {
+    "entity": "KL",
+    "invoice": "PT_2512_0021",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2512_00223|KL": {
+    "entity": "KL",
+    "invoice": "PT_2512_00223",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2512_00232|KL": {
+    "entity": "KL",
+    "invoice": "PT_2512_00232",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2601_00148|KL": {
+    "entity": "KL",
+    "invoice": "PT_2601_00148",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2601_00149|KL": {
+    "entity": "KL",
+    "invoice": "PT_2601_00149",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2601_00179|KL": {
+    "entity": "KL",
+    "invoice": "PT_2601_00179",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2602_00140|KL": {
+    "entity": "KL",
+    "invoice": "PT_2602_00140",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2603_00243|KL": {
+    "entity": "KL",
+    "invoice": "PT_2603_00243",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2604_0033|KL": {
+    "entity": "KL",
+    "invoice": "PT_2604_0033",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2605_0098|KL": {
+    "entity": "KL",
+    "invoice": "PT_2605_0098",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2605_0099|KL": {
+    "entity": "KL",
+    "invoice": "PT_2605_0099",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2605_0036|CÔNG TY AB": {
+    "entity": "CÔNG TY AB",
+    "invoice": "PT_2605_0036",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2605_0037|CÔNG TY AB": {
+    "entity": "CÔNG TY AB",
+    "invoice": "PT_2605_0037",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2604_0074|MBF": {
+    "entity": "MBF",
+    "invoice": "PT_2604_0074",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2604_0075|MBF": {
+    "entity": "MBF",
+    "invoice": "PT_2604_0075",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2602_00161|V3": {
+    "entity": "V3",
+    "invoice": "PT_2602_00161",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2603_001|V3": {
+    "entity": "V3",
+    "invoice": "PT_2603_001",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2604_001|V3": {
+    "entity": "V3",
+    "invoice": "PT_2604_001",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2604_002|V3": {
+    "entity": "V3",
+    "invoice": "PT_2604_002",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2605_0011|V3": {
+    "entity": "V3",
+    "invoice": "PT_2605_0011",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2605_0019|V3": {
+    "entity": "V3",
+    "invoice": "PT_2605_0019",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2605_001|CÔNG TY BC": {
+    "entity": "CÔNG TY BC",
+    "invoice": "PT_2605_001",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2605_002|CÔNG TY BC": {
+    "entity": "CÔNG TY BC",
+    "invoice": "PT_2605_002",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2605_003|CÔNG TY BC": {
+    "entity": "CÔNG TY BC",
+    "invoice": "PT_2605_003",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2605_004|CÔNG TY BC": {
+    "entity": "CÔNG TY BC",
+    "invoice": "PT_2605_004",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2605_005|CÔNG TY BC": {
+    "entity": "CÔNG TY BC",
+    "invoice": "PT_2605_005",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2605_006|CÔNG TY BC": {
+    "entity": "CÔNG TY BC",
+    "invoice": "PT_2605_006",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2605_008|CÔNG TY BC": {
+    "entity": "CÔNG TY BC",
+    "invoice": "PT_2605_008",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2605_009|CÔNG TY BC": {
+    "entity": "CÔNG TY BC",
+    "invoice": "PT_2605_009",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2605_0010|CÔNG TY BC": {
+    "entity": "CÔNG TY BC",
+    "invoice": "PT_2605_0010",
+    "reminder_count": 0,
+    "history": []
+  },
+  "PT_2605_0011|CÔNG TY BC": {
+    "entity": "CÔNG TY BC",
+    "invoice": "PT_2605_0011",
+    "reminder_count": 0,
+    "history": []
+  },
+  "699664|CÔNG TY TNHH GH": {
+    "entity": "CÔNG TY TNHH GH",
+    "invoice": 699664,
+    "reminder_count": 0,
+    "history": []
+  },
+  "704584|CÔNG TY TNHH GH": {
+    "entity": "CÔNG TY TNHH GH",
+    "invoice": 704584,
+    "reminder_count": 0,
+    "history": []
+  },
+  "849922|INT": {
+    "entity": "INT",
+    "invoice": 849922,
+    "reminder_count": 0,
+    "history": []
+  },
+  "969637|INT": {
+    "entity": "INT",
+    "invoice": 969637,
+    "reminder_count": 0,
+    "history": []
+  },
+  "1121444|INT": {
+    "entity": "INT",
+    "invoice": 1121444,
+    "reminder_count": 0,
+    "history": []
+  },
+  "1185992|INT": {
+    "entity": "INT",
+    "invoice": 1185992,
+    "reminder_count": 0,
+    "history": []
+  },
+  "1272842|INT": {
+    "entity": "INT",
+    "invoice": 1272842,
+    "reminder_count": 0,
+    "history": []
+  },
+  "1361833|INT": {
+    "entity": "INT",
+    "invoice": 1361833,
+    "reminder_count": 0,
+    "history": []
+  },
+  "1787708|CÔNG TY TNHH EF": {
+    "entity": "CÔNG TY TNHH EF",
+    "invoice": 1787708,
+    "reminder_count": 0,
+    "history": []
+  },
+  "1785174|Công Ty GT": {
+    "entity": "Công Ty GT",
+    "invoice": 1785174,
+    "reminder_count": 0,
+    "history": []
+  },
+  "1784785|CÔNG TY": {
+    "entity": "CÔNG TY",
+    "invoice": 1784785,
+    "reminder_count": 0,
+    "history": []
+  },
+  "1785262|INT": {
+    "entity": "INT",
+    "invoice": 1785262,
+    "reminder_count": 0,
+    "history": []
+  },
+  "1785263|INT": {
+    "entity": "INT",
+    "invoice": 1785263,
+    "reminder_count": 0,
+    "history": []
+  },
+  "1851775|Tổng Công Ty": {
+    "entity": "Tổng Công Ty",
+    "invoice": 1851775,
+    "reminder_count": 0,
+    "history": []
+  },
+  "1851776|CÔNG TY TNHH": {
+    "entity": "CÔNG TY TNHH",
+    "invoice": 1851776,
+    "reminder_count": 0,
+    "history": []
+  },
+  "1784764|CÔNG TY CỔ PHẦN": {
+    "entity": "CÔNG TY CỔ PHẦN",
+    "invoice": 1784764,
+    "reminder_count": 0,
+    "history": []
+  },
+  "1828264|KL": {
+    "entity": "KL",
+    "invoice": 1828264,
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP202511123|Nguyễn Ngô Nhật Minh-minhnnn": {
+    "entity": "Nguyễn Ngô Nhật Minh-minhnnn",
+    "invoice": "TONGHOP202511123",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP202512019|Nguyễn Ngô Nhật Minh-minhnnn": {
+    "entity": "Nguyễn Ngô Nhật Minh-minhnnn",
+    "invoice": "TONGHOP202512019",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP250307009|Nguyễn Ngô Nhật Minh-minhnnn": {
+    "entity": "Nguyễn Ngô Nhật Minh-minhnnn",
+    "invoice": "TONGHOP250307009",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP250708003|Nguyễn Ngô Nhật Minh-minhnnn": {
+    "entity": "Nguyễn Ngô Nhật Minh-minhnnn",
+    "invoice": "TONGHOP250708003",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP250617016|Nguyễn Ngô Nhật Minh-minhnnn": {
+    "entity": "Nguyễn Ngô Nhật Minh-minhnnn",
+    "invoice": "TONGHOP250617016",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP202509146|Nguyễn Ngô Nhật Minh-minhnnn": {
+    "entity": "Nguyễn Ngô Nhật Minh-minhnnn",
+    "invoice": "TONGHOP202509146",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP202509147|Nguyễn Ngô Nhật Minh-minhnnn": {
+    "entity": "Nguyễn Ngô Nhật Minh-minhnnn",
+    "invoice": "TONGHOP202509147",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP250424006|Nguyễn Ngô Nhật Minh-minhnnn": {
+    "entity": "Nguyễn Ngô Nhật Minh-minhnnn",
+    "invoice": "TONGHOP250424006",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP202511155|Nguyễn Ngô Nhật Minh-minhnnn": {
+    "entity": "Nguyễn Ngô Nhật Minh-minhnnn",
+    "invoice": "TONGHOP202511155",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP250330032|Nguyễn Ngô Nhật Minh-minhnnn": {
+    "entity": "Nguyễn Ngô Nhật Minh-minhnnn",
+    "invoice": "TONGHOP250330032",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP250330033|Nguyễn Ngô Nhật Minh-minhnnn": {
+    "entity": "Nguyễn Ngô Nhật Minh-minhnnn",
+    "invoice": "TONGHOP250330033",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP250330034|Nguyễn Ngô Nhật Minh-minhnnn": {
+    "entity": "Nguyễn Ngô Nhật Minh-minhnnn",
+    "invoice": "TONGHOP250330034",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP250303021|Nguyễn Thị Thu Trang-trangntt6": {
+    "entity": "Nguyễn Thị Thu Trang-trangntt6",
+    "invoice": "TONGHOP250303021",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP240603003|Nguyễn Thị Thu Trang-trangntt6": {
+    "entity": "Nguyễn Thị Thu Trang-trangntt6",
+    "invoice": "TONGHOP240603003",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP250508001|Nguyễn Thị Thu Trang-trangntt6": {
+    "entity": "Nguyễn Thị Thu Trang-trangntt6",
+    "invoice": "TONGHOP250508001",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP241111001|Nguyễn Thị Thu Trang-trangntt6": {
+    "entity": "Nguyễn Thị Thu Trang-trangntt6",
+    "invoice": "TONGHOP241111001",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP250324009|Nguyễn Thị Thu Trang-trangntt6": {
+    "entity": "Nguyễn Thị Thu Trang-trangntt6",
+    "invoice": "TONGHOP250324009",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP240116011|Nguyễn Phương Thảo Quyên-quyennpt": {
+    "entity": "Nguyễn Phương Thảo Quyên-quyennpt",
+    "invoice": "TONGHOP240116011",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP240116017|Nguyễn Phương Thảo Quyên-quyennpt": {
+    "entity": "Nguyễn Phương Thảo Quyên-quyennpt",
+    "invoice": "TONGHOP240116017",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP202605365|10274 - CTY CỔ PHẦN TẬP ĐOÀN K": {
+    "entity": "10274 - CTY CỔ PHẦN TẬP ĐOÀN K",
+    "invoice": "TONGHOP202605365",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP250131020|10430 - Khách lẻ (KH không lấy hóa đơn)": {
+    "entity": "10430 - Khách lẻ (KH không lấy hóa đơn)",
+    "invoice": "TONGHOP250131020",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP202605337|10430 - Khách lẻ (KH không lấy hóa đơn)": {
+    "entity": "10430 - Khách lẻ (KH không lấy hóa đơn)",
+    "invoice": "TONGHOP202605337",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP202605339|10430 - Khách lẻ (KH không lấy hóa đơn)": {
+    "entity": "10430 - Khách lẻ (KH không lấy hóa đơn)",
+    "invoice": "TONGHOP202605339",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP202605364|10431 - CÔNG TY CỔ PHẦN M": {
+    "entity": "10431 - CÔNG TY CỔ PHẦN M",
+    "invoice": "TONGHOP202605364",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP202605360|10776 - CÔNG TY TNHH V": {
+    "entity": "10776 - CÔNG TY TNHH V",
+    "invoice": "TONGHOP202605360",
+    "reminder_count": 0,
+    "history": []
+  },
+  "123PHIM2026053117|12305 - CHI NHÁNH CÔNG TY TNHH Z": {
+    "entity": "12305 - CHI NHÁNH CÔNG TY TNHH Z",
+    "invoice": "123PHIM2026053117",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP202605344|17054 - CÔNG TY CỔ PHẦN X": {
+    "entity": "17054 - CÔNG TY CỔ PHẦN X",
+    "invoice": "TONGHOP202605344",
+    "reminder_count": 0,
+    "history": []
+  },
+  "123PHIM2026053116|17572 - CÔNG TY TNHH Q": {
+    "entity": "17572 - CÔNG TY TNHH Q",
+    "invoice": "123PHIM2026053116",
+    "reminder_count": 0,
+    "history": []
+  },
+  "123PHIM2026053118|17573 - CHI NHÁNH CÔNG TY N": {
+    "entity": "17573 - CHI NHÁNH CÔNG TY N",
+    "invoice": "123PHIM2026053118",
+    "reminder_count": 0,
+    "history": []
+  },
+  "123PHIM2026053108|17583 - CÔNG TY TNHH W": {
+    "entity": "17583 - CÔNG TY TNHH W",
+    "invoice": "123PHIM2026053108",
+    "reminder_count": 0,
+    "history": []
+  },
+  "123PHIM2026053107|17584 - CÔNG TY CỔ PHẦN S": {
+    "entity": "17584 - CÔNG TY CỔ PHẦN S",
+    "invoice": "123PHIM2026053107",
+    "reminder_count": 0,
+    "history": []
+  },
+  "123PHIM2026043009|17585 - CÔNG TY TNHH O": {
+    "entity": "17585 - CÔNG TY TNHH O",
+    "invoice": "123PHIM2026043009",
+    "reminder_count": 0,
+    "history": []
+  },
+  "123PHIM2026013111|17585 - CÔNG TY TNHH O": {
+    "entity": "17585 - CÔNG TY TNHH O",
+    "invoice": "123PHIM2026013111",
+    "reminder_count": 0,
+    "history": []
+  },
+  "123PHIM2026033111|17585 - CÔNG TY TNHH O": {
+    "entity": "17585 - CÔNG TY TNHH O",
+    "invoice": "123PHIM2026033111",
+    "reminder_count": 0,
+    "history": []
+  },
+  "123PHIM2026053110|17585 - CÔNG TY TNHH O": {
+    "entity": "17585 - CÔNG TY TNHH O",
+    "invoice": "123PHIM2026053110",
+    "reminder_count": 0,
+    "history": []
+  },
+  "123PHIM2026053112|18963 - CÔNG TY CP P": {
+    "entity": "18963 - CÔNG TY CP P",
+    "invoice": "123PHIM2026053112",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP202512097|CÔNG TY CỔ PHẦN A": {
+    "entity": "CÔNG TY CỔ PHẦN A",
+    "invoice": "TONGHOP202512097",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP202603030|TẬP ĐOÀN B": {
+    "entity": "TẬP ĐOÀN B",
+    "invoice": "TONGHOP202603030",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP250613001|CÔNG TY TNHH C": {
+    "entity": "CÔNG TY TNHH C",
+    "invoice": "TONGHOP250613001",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP202510115|CÔNG TY TNHH C": {
+    "entity": "CÔNG TY TNHH C",
+    "invoice": "TONGHOP202510115",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP202604038|CÔNG TY TNHH D": {
+    "entity": "CÔNG TY TNHH D",
+    "invoice": "TONGHOP202604038",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP202512112|CÔNG TY TNHH D": {
+    "entity": "CÔNG TY TNHH D",
+    "invoice": "TONGHOP202512112",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP202604181|CÔNG TY TNHH D": {
+    "entity": "CÔNG TY TNHH D",
+    "invoice": "TONGHOP202604181",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP202602045|Nguyễn Phương Thảo Quyên-quyennpt": {
+    "entity": "Nguyễn Phương Thảo Quyên-quyennpt",
+    "invoice": "TONGHOP202602045",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP202510051|CÔNG TY CỔ PHẦN F": {
+    "entity": "CÔNG TY CỔ PHẦN F",
+    "invoice": "TONGHOP202510051",
+    "reminder_count": 0,
+    "history": []
+  },
+  "TONGHOP202509164|CÔNG TY CỔ PHẦN G": {
+    "entity": "CÔNG TY CỔ PHẦN G",
+    "invoice": "TONGHOP202509164",
+    "reminder_count": 0,
+    "history": []
+  },
+  "123PHIM2026053109|30614 - CÔNG TY I": {
+    "entity": "30614 - CÔNG TY I",
+    "invoice": "123PHIM2026053109",
+    "reminder_count": 0,
+    "history": []
+  }
+}
