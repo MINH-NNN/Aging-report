@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>SLA Dashboard — AR Aged Debtor</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #F0F4F8; color: #1a1a1a; font-size: 14px; }
+  .header { background: #1F4E79; color: white; padding: 18px 32px; display: flex; justify-content: space-between; align-items: center; }
+  .header h1 { font-size: 20px; font-weight: 700; }
+  .header .meta { font-size: 12px; opacity: 0.85; text-align: right; line-height: 1.6; }
+  .content { padding: 24px 32px; }
+
+  /* KPI cards */
+  .kpi-section { margin-bottom: 28px; }
+  .kpi-section h2 { font-size: 13px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+  .kpi-row { display: flex; gap: 14px; flex-wrap: wrap; }
+  .kpi-card { background: white; border-radius: 10px; padding: 16px 20px; min-width: 140px; flex: 1; box-shadow: 0 1px 4px rgba(0,0,0,0.08); border-top: 4px solid #ccc; }
+  .kpi-card.green { border-top-color: #4CAF50; }
+  .kpi-card.yellow { border-top-color: #FFC107; }
+  .kpi-card.red { border-top-color: #F44336; }
+  .kpi-card.blue { border-top-color: #2196F3; }
+  .kpi-card.gray { border-top-color: #9E9E9E; }
+  .kpi-card .num { font-size: 32px; font-weight: 700; line-height: 1.1; }
+  .kpi-card .label { font-size: 12px; color: #666; margin-top: 4px; }
+  .kpi-card.green .num { color: #2E7D32; }
+  .kpi-card.yellow .num { color: #E65100; }
+  .kpi-card.red .num { color: #C62828; }
+  .kpi-card.blue .num { color: #0D47A1; }
+  .kpi-card.gray .num { color: #616161; }
+
+  /* Filters */
+  .filter-bar { background: white; border-radius: 10px; padding: 14px 20px; margin-bottom: 18px; display: flex; gap: 14px; flex-wrap: wrap; align-items: center; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+  .filter-bar label { font-size: 12px; color: #555; font-weight: 600; }
+  .filter-bar select, .filter-bar input { border: 1px solid #ddd; border-radius: 6px; padding: 6px 10px; font-size: 13px; color: #333; background: #fafafa; }
+  .filter-bar select:focus, .filter-bar input:focus { outline: none; border-color: #2196F3; }
+  .reset-btn { background: #E3F2FD; color: #1565C0; border: none; border-radius: 6px; padding: 6px 14px; font-size: 13px; cursor: pointer; font-weight: 600; }
+  .reset-btn:hover { background: #BBDEFB; }
+
+  /* Table */
+  .table-wrap { background: white; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); overflow: hidden; }
+  .table-info { padding: 12px 20px; font-size: 13px; color: #555; border-bottom: 1px solid #eee; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th { background: #1F4E79; color: white; padding: 11px 12px; text-align: left; font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; user-select: none; }
+  thead th:hover { background: #2E75B6; }
+  tbody tr { border-bottom: 1px solid #f0f0f0; transition: background 0.15s; }
+  tbody tr:hover { background: #F8FAFF; }
+  tbody td { padding: 10px 12px; font-size: 13px; vertical-align: middle; }
+  .amount { text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* SLA badges */
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+  .badge.on-track { background: #E8F5E9; color: #2E7D32; }
+  .badge.at-risk { background: #FFF9C4; color: #E65100; }
+  .badge.breached { background: #FFEBEE; color: #C62828; }
+  .badge.no-email { background: #F5F5F5; color: #757575; }
+
+  .footer { text-align: center; padding: 20px; color: #999; font-size: 11px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>📊 SLA Dashboard — AR Aged Debtor</h1>
+    <div style="font-size:13px;opacity:0.85;margin-top:4px;">Theo dõi Payment SLA (NET30) & PIC Response SLA (3 ngày làm việc)</div>
+  </div>
+  <div class="meta">
+    Báo cáo đến: <strong>31/05/2026</strong><br>
+    Xem lúc: <strong>14/06/2026 13:02</strong>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- Payment SLA KPIs -->
+  <div class="kpi-section">
+    <h2>💳 Payment SLA (NET30)</h2>
+    <div class="kpi-row">
+      <div class="kpi-card blue"><div class="num">3</div><div class="label">Tổng invoice</div></div>
+      <div class="kpi-card green"><div class="num">1</div><div class="label">✅ Chưa đến hạn</div></div>
+      <div class="kpi-card yellow"><div class="num">1</div><div class="label">⚠️ Đang trễ (trong SLA)</div></div>
+      <div class="kpi-card red"><div class="num">1</div><div class="label">🔴 Vi phạm SLA</div></div>
+      <div class="kpi-card red"><div class="num">1,960,433</div><div class="label">VND vi phạm</div></div>
+    </div>
+  </div>
+
+  <!-- PIC Response SLA KPIs -->
+  <div class="kpi-section">
+    <h2>📬 PIC Response SLA (3 ngày làm việc)</h2>
+    <div class="kpi-row">
+      <div class="kpi-card green"><div class="num">0</div><div class="label">✅ Đã phản hồi đúng hạn</div></div>
+      <div class="kpi-card yellow"><div class="num">0</div><div class="label">⏳ Đang chờ phản hồi</div></div>
+      <div class="kpi-card red"><div class="num">0</div><div class="label">🔴 Vi phạm / Không phản hồi</div></div>
+      <div class="kpi-card gray"><div class="num">3</div><div class="label">— Chưa gửi mail</div></div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filter-bar">
+    <label>PIC:</label>
+    <select id="f-pic" onchange="applyFilters()">
+      <option value="">Tất cả</option>
+      <option value="Chưa phân công">Chưa phân công</option><option value="PIC2">PIC2</option><option value="PIC3">PIC3</option>
+    </select>
+    <label>Payment SLA:</label>
+    <select id="f-pay" onchange="applyFilters()">
+      <option value="">Tất cả</option>
+      <option value="on-track">✅ Chưa đến hạn</option>
+      <option value="at-risk">⚠️ Đang trễ</option>
+      <option value="breached">🔴 Vi phạm</option>
+    </select>
+    <label>PIC Response:</label>
+    <select id="f-pic-sla" onchange="applyFilters()">
+      <option value="">Tất cả</option>
+      <option value="on-track">✅ Đã phản hồi</option>
+      <option value="at-risk">⏳ Đang chờ</option>
+      <option value="breached">🔴 Vi phạm</option>
+      <option value="no-email">— Chưa gửi</option>
+    </select>
+    <label>Tìm kiếm:</label>
+    <input type="text" id="f-search" placeholder="Invoice, KH, mô tả..." oninput="applyFilters()" style="width:180px">
+    <button class="reset-btn" onclick="resetFilters()">↺ Reset</button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <div class="table-info" id="table-info">Đang tải...</div>
+    <table id="main-table">
+      <thead>
+        <tr>
+          <th onclick="sortBy(0)">PIC ↕</th>
+          <th onclick="sortBy(1)">Khách hàng ↕</th>
+          <th onclick="sortBy(2)">Invoice ↕</th>
+          <th onclick="sortBy(3)">Ngày HĐ ↕</th>
+          <th onclick="sortBy(4)">Mô tả</th>
+          <th onclick="sortBy(5)" style="text-align:right">Số tiền (VND) ↕</th>
+          <th onclick="sortBy(6)">Quá hạn ↕</th>
+          <th onclick="sortBy(7)">Payment SLA ↕</th>
+          <th onclick="sortBy(8)">Ngày gửi mail ↕</th>
+          <th onclick="sortBy(9)">PIC Response SLA ↕</th>
+          <th>Ghi chú</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<div class="footer">Cập nhật bằng cách upload file AR mới mỗi tháng — SLA Dashboard tự tính lại</div>
+
+<script>
+const ALL_ROWS = [{"pic": "Chưa phân công", "code": 105696, "name": "Công ty TNHH A", "invoice": "#14055", "invoice_date": "07/04/2026", "description": "Phí dịch vụ tháng 04/2026", "amount": 1960433.0, "over_day": 54, "aging_bucket": "31-60 ngày", "email_sent": "", "pic_response": "", "notes": "", "pay_cls": "breached", "pay_label": "🔴 Vi phạm (54 ngày)", "pic_cls": "no-email", "pic_label": "— Chưa gửi mail"}, {"pic": "PIC2", "code": 10621, "name": "Min", "invoice": "#12699", "invoice_date": "10/05/2026", "description": "Phí hỗ trợ dịch vụTháng 04/2026 của Ví", "amount": 1190.0, "over_day": 21, "aging_bucket": "1-30 ngày", "email_sent": "", "pic_response": "", "notes": "", "pay_cls": "at-risk", "pay_label": "⚠️ Trễ 21 ngày", "pic_cls": "no-email", "pic_label": "— Chưa gửi mail"}, {"pic": "PIC3", "code": 10710, "name": "Trang6", "invoice": "#14265", "invoice_date": "31/05/2026", "description": "Thưởng doanh số Quý 1/2026", "amount": 83368365.0, "over_day": 0, "aging_bucket": "Current", "email_sent": "", "pic_response": "", "notes": "", "pay_cls": "on-track", "pay_label": "✅ Chưa đến hạn", "pic_cls": "no-email", "pic_label": "— Chưa gửi mail"}];
+let sortCol = -1, sortAsc = true;
+
+function fmt(n) {
+  return n.toLocaleString('vi-VN');
+}
+
+function render(rows) {
+  const tbody = document.getElementById('table-body');
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td><strong>${r.pic}</strong></td>
+      <td>${r.code}${r.name ? ' — ' + r.name : ''}</td>
+      <td>${r.invoice}</td>
+      <td>${r.invoice_date}</td>
+      <td style="max-width:220px;word-break:break-word">${r.description}</td>
+      <td class="amount">${fmt(r.amount)}</td>
+      <td style="text-align:center">${r.over_day > 0 ? r.over_day + ' ngày' : '—'}</td>
+      <td><span class="badge ${r.pay_cls}">${r.pay_label}</span></td>
+      <td style="text-align:center">${r.email_sent || '—'}</td>
+      <td><span class="badge ${r.pic_cls}">${r.pic_label}</span></td>
+      <td style="color:#666;font-size:12px">${r.notes || ''}</td>
+    </tr>
+  `).join('');
+  document.getElementById('table-info').textContent =
+    `Hiển thị ${rows.length} / ${ALL_ROWS.length} invoice`;
+}
+
+function applyFilters() {
+  const fPic = document.getElementById('f-pic').value;
+  const fPay = document.getElementById('f-pay').value;
+  const fPicSla = document.getElementById('f-pic-sla').value;
+  const fSearch = document.getElementById('f-search').value.toLowerCase();
+  let rows = ALL_ROWS.filter(r =>
+    (!fPic || r.pic === fPic) &&
+    (!fPay || r.pay_cls === fPay) &&
+    (!fPicSla || r.pic_cls === fPicSla) &&
+    (!fSearch || [r.invoice, r.code+'', r.name, r.description].join(' ').toLowerCase().includes(fSearch))
+  );
+  if (sortCol >= 0) rows = sortRows(rows);
+  render(rows);
+}
+
+function resetFilters() {
+  ['f-pic','f-pay','f-pic-sla'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-search').value = '';
+  applyFilters();
+}
+
+const SORT_KEYS = ['pic','code','invoice','invoice_date','description','amount','over_day','pay_cls','email_sent','pic_cls'];
+function sortRows(rows) {
+  const key = SORT_KEYS[sortCol];
+  return [...rows].sort((a, b) => {
+    let av = a[key], bv = b[key];
+    if (typeof av === 'number') return sortAsc ? av - bv : bv - av;
+    return sortAsc ? String(av).localeCompare(String(bv)) : String(bv).localeCompare(String(av));
+  });
+}
+function sortBy(col) {
+  if (sortCol === col) sortAsc = !sortAsc; else { sortCol = col; sortAsc = true; }
+  applyFilters();
+}
+
+applyFilters();
+</script>
+</body>
+</html>
