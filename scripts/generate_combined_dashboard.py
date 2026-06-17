@@ -766,14 +766,23 @@ async function syncFormResponses(){
     });
     // Step 2: Auto-set "No Response" nếu quá 3 ngày làm việc chưa phản hồi
     var now=new Date();
+    var noRespUpdates={};
     ROWS.forEach(function(row){
       if(!row.email_sent)return;
       if(row.pic_resp==='Responded'||row.pic_resp==='No Response')return;
       var sentDate=parseVNDate(row.email_sent);
       if(sentDate&&now>=addBizDays(sentDate,3)){
         row.pic_resp='No Response';
+        var k=row.invoice||(row.entity+'|'+row.inv_date);
+        noRespUpdates[k]={pic_resp:'No Response'};
       }
     });
+    if(Object.keys(noRespUpdates).length>0){
+      fetch(window.location.origin+'/api/tracker/update',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({updates:noRespUpdates})
+      }).catch(function(){});
+    }
     saveLocal();refresh();
     // Step 3: Auto-send cho PIC "No Response" còn dưới 3 lần nhắc
     if(_autoSending)return;

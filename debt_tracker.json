@@ -16,5 +16,29 @@
     "invoice": 12699,
     "reminder_count": 0,
     "history": []
+  },
+  "12699|10621": {
+    "entity": "10621",
+    "invoice": "12699",
+    "email_sent": "09:33 17/06/2026",
+    "reminder_count": 1,
+    "pic_resp": "Awaiting",
+    "ghi_chu": ""
+  },
+  "14055|105696": {
+    "entity": "105696",
+    "invoice": "14055",
+    "email_sent": "09:35 17/06/2026",
+    "reminder_count": 1,
+    "pic_resp": "Responded",
+    "ghi_chu": "Đang xử lý chứng từ (Đối soát/Nghiệm thu, Phê duyệt,...) | Số tiền: 1,000,000"
+  },
+  "14056|105696": {
+    "entity": "105696",
+    "invoice": "14056",
+    "email_sent": "09:35 17/06/2026",
+    "reminder_count": 1,
+    "pic_resp": "Responded",
+    "ghi_chu": "Đang xử lý chứng từ (Đối soát/Nghiệm thu, Phê duyệt,...) | Số tiền: 1,000,000"
   }
 }

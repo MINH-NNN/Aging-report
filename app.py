@@ -58,22 +58,32 @@ def tracker_key(row: dict) -> str:
     ent = str(row.get("entity") or "").strip()
     return f"{inv}|{ent}" if inv else f"{ent}|{row.get('inv_date','')}"
 
+def ar_tracker_key(r: dict) -> str:
+    """Key từ AR record (invoice_no/code thay vì invoice/entity)."""
+    inv = str(r.get("invoice_no") or "").strip()
+    ent = str(r.get("code") or "").strip()
+    return f"{inv}|{ent}" if inv else f"{ent}|{r.get('invoice_date','')}"
+
 def merge_tracker(rows: list) -> list:
+    """Merge tracker vào ROWS: restore email_sent, pic_resp, ghi_chu, reminder_count."""
     tracker = load_tracker()
-    new_tracker = {}
     for row in rows:
         key = tracker_key(row)
-        rec = tracker.get(key, {"reminder_count": 0, "history": []})
+        rec = tracker.get(key, {})
         row["reminder_count"] = rec.get("reminder_count", 0)
-        row["reminder_history"] = rec.get("history", [])
-        new_tracker[key] = {
-            "entity": row.get("entity",""),
-            "invoice": row.get("invoice",""),
-            "reminder_count": row["reminder_count"],
-            "history": row["reminder_history"],
-        }
-    save_tracker(new_tracker)
+        row["email_sent"]     = rec.get("email_sent", "")
+        row["pic_resp"]       = rec.get("pic_resp", row.get("pic_resp", "Not Reminded"))
+        row["ghi_chu"]        = rec.get("ghi_chu", "")
     return rows
+
+def update_tracker(updates: dict):
+    """Merge updates {key: {field: value}} vào tracker và lưu."""
+    tracker = load_tracker()
+    for key, fields in updates.items():
+        if key not in tracker:
+            tracker[key] = {}
+        tracker[key].update(fields)
+    save_tracker(tracker)
 
 # ── Dashboard ─────────────────────────────────────────────────────────────────
 import sys as _sys
@@ -314,6 +324,17 @@ async def api_process(files: List[UploadFile] = File(...)):
 
         rows_data = json.loads(run_script("generate_combined_dashboard.py", [combined_path, "--json"]))
         rows_data["rows"] = merge_tracker(rows_data["rows"])
+
+        # Rebuild _dashboard_html với tracker data để reload trang vẫn giữ state
+        try:
+            _dashboard_html = _build_html(
+                json.dumps(rows_data["rows"], ensure_ascii=False),
+                rows_data.get("report_date", ""),
+                rows_data.get("today", _dt.now().strftime("%d/%m/%Y"))
+            )
+        except Exception:
+            pass
+
         return JSONResponse(rows_data)
 
     except HTTPException:
@@ -502,6 +523,25 @@ async def api_send(request_body: dict):
         if result.returncode != 0:
             raise HTTPException(status_code=500, detail=result.stderr.strip() or result.stdout.strip())
 
+        # Lưu email_sent + reminder_count vào tracker
+        if not dry_run:
+            now_str = datetime.now().strftime("%H:%M %d/%m/%Y")
+            tracker_updates = {}
+            for pic, records in filtered_by_pic.items():
+                for r in records:
+                    key = ar_tracker_key(r)
+                    old = load_tracker().get(key, {})
+                    tracker_updates[key] = {
+                        "entity":         str(r.get("code") or ""),
+                        "invoice":        str(r.get("invoice_no") or ""),
+                        "email_sent":     now_str,
+                        "reminder_count": old.get("reminder_count", 0) + 1,
+                        "pic_resp":       "Awaiting",
+                        "ghi_chu":        old.get("ghi_chu", ""),
+                    }
+            if tracker_updates:
+                update_tracker(tracker_updates)
+
         return {"status": "ok", "detail": result.stdout.strip()}
     finally:
         shutil.rmtree(work_dir, ignore_errors=True)
@@ -574,7 +614,46 @@ def sync_responses():
             "ghi_chu":      get_val(row, ghichu_idx),
         }
 
+    # Lưu "Responded" + ghi_chu vào tracker cho các invoice đã được gửi mail
+    import unicodedata as _ud
+    def _norm(s):
+        s = _ud.normalize("NFD", s)
+        return "".join(c for c in s if _ud.category(c) != "Mn").lower().strip()
+
+    tracker_updates = {}
+    for pic_name, records in _last_ar_by_pic.items():
+        resp_data = result.get(pic_name) or next(
+            (v for k, v in result.items() if _norm(k) == _norm(pic_name)), None)
+        if not resp_data:
+            continue
+        for r in records:
+            key = ar_tracker_key(r)
+            existing = load_tracker().get(key, {})
+            if not existing.get("email_sent"):
+                continue  # chỉ update nếu đã gửi mail
+            notes = []
+            if resp_data.get("nguyen_nhan"): notes.append(resp_data["nguyen_nhan"])
+            if resp_data.get("ngay_du_kien"): notes.append(f"Dự kiến: {resp_data['ngay_du_kien']}")
+            if resp_data.get("so_tien"): notes.append(f"Số tiền: {resp_data['so_tien']}")
+            if resp_data.get("ghi_chu"): notes.append(resp_data["ghi_chu"])
+            tracker_updates[key] = {
+                **existing,
+                "pic_resp": "Responded",
+                "ghi_chu":  " | ".join(notes) if notes else existing.get("ghi_chu", ""),
+            }
+    if tracker_updates:
+        update_tracker(tracker_updates)
+
     return {"responses": result, "total": len(result), "headers": headers}
+
+
+@app.post("/api/tracker/update")
+async def api_tracker_update(request_body: dict):
+    """Dashboard push state changes (No Response, ghi_chu edits) lên server."""
+    updates = request_body.get("updates", {})
+    if updates:
+        update_tracker(updates)
+    return {"ok": True}
 
 
 if __name__ == "__main__":
