@@ -9,7 +9,7 @@ Hệ thống tự động hóa quy trình theo dõi và nhắc nợ cho bộ ph�
 ## Tính năng chính
 
 ### Dashboard
-- Upload file AR Excel → sinh dashboard HTML hiển thị toàn bộ công nợ theo PIC
+- Upload file AR Excel, AP Aging, Tạm ứng, Prepayment → sinh dashboard HTML hiển thị toàn bộ công nợ theo PIC
 - Lọc tự động: chỉ hiển thị và gửi mail các khoản **overdue** (bỏ qua "Current")
 - Theo dõi 4 cột trạng thái: **Reminded**, **Email Sent**, **PIC Response**, **Notes**
 - Trạng thái persist server-side qua `debt_tracker.json` — reload trang không mất dữ liệu
@@ -136,7 +136,7 @@ https://endpoint-27eb5189-b34d-4ce1-9a2c-7fdbc97411b2.agentbase-runtime.aiplatfo
 | Method | Path | Mô tả |
 |--------|------|--------|
 | `GET` | `/` | Dashboard HTML |
-| `POST` | `/api/upload` | Upload file AR Excel, sinh dashboard |
+| `POST` | `/api/upload` | Upload file AR Excel, AP Aging, Tạm ứng, Prepayment, sinh dashboard |
 | `GET` | `/api/pics` | Danh sách PIC có invoice overdue + mapping email |
 | `POST` | `/api/send` | Gửi email nhắc nợ cho các PIC đã chọn |
 | `GET` | `/api/sync-responses` | Sync phản hồi từ Google Sheet về tracker |
