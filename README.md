@@ -30,7 +30,6 @@ Gửi mail lần 1 → Awaiting
    No Response → Tự động gửi mail lần 3 → Awaiting
        ↓
    Dừng (tối đa 3 lần nhắc — 3/3)
-```
 
 ### Sync phản hồi từ Google Form / Sheet
 - Auto-sync mỗi 10 giây: Google Sheet → cập nhật `PIC Response` + `Notes`
