@@ -30,15 +30,16 @@ Gửi mail lần 1 → Awaiting
    No Response → Tự động gửi mail lần 3 → Awaiting
        ↓
    Dừng (tối đa 3 lần nhắc — 3/3)
+```
 
 ### Sync phản hồi từ Google Form / Sheet
 - Auto-sync mỗi 10 giây: Google Sheet → cập nhật `PIC Response` + `Notes`
 - Nếu PIC xóa response khỏi Google Sheet → tự reset về **Awaiting** + xóa Notes
 - Chuẩn hóa Unicode (bỏ dấu tiếng Việt) khi match tên PIC với header Google Sheet
-```
+
 
 ### Cập nhật thông tin Payment SLA (chưa chạy agent)
-Thực hiện trong phase 2 --> chưa làm kịp. Output: Phân tích tình trạng nợ xấu, số lượng/ lần lặp lại, đề xuất cải thiện (sau khi chạy khoảng 3 tháng và thu thập được số lượng tệp lớn khoảng 300 mẫu)
+- Thực hiện trong phase 2 --> chưa làm kịp. Output: Phân tích tình trạng nợ xấu, số lượng/ lần lặp lại, đề xuất cải thiện (sau khi chạy khoảng 3 tháng và thu thập được số lượng tệp lớn khoảng 300 mẫu)
 ---
 
 ## Cấu trúc repo
