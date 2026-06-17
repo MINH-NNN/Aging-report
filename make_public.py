@@ -3,8 +3,8 @@
 
 import base64, json, urllib.request, urllib.error, urllib.parse, sys
 
-CLIENT_ID     = "4e15b882-af6e-4acb-afed-159172ec2998"
-CLIENT_SECRET = "579ef815-5d01-4a54-883a-483fd1d9e049"
+CLIENT_ID     = "****"
+CLIENT_SECRET = "****"
 RUNTIME_NAME  = "aging-report-agent"
 IAM_URL       = "https://iam.api.vngcloud.vn/accounts-api/v2/auth/token"
 AB_API        = "https://agentbase.api.vngcloud.vn/runtime"
