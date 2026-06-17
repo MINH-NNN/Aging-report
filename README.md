@@ -38,7 +38,8 @@ Gửi mail lần 1 → Awaiting
 - Chuẩn hóa Unicode (bỏ dấu tiếng Việt) khi match tên PIC với header Google Sheet
 ```
 
-### Cập nhật thông tin Payment SLA (chưa chạy agent), thực hiện trong phase 2 --> chưa làm kịp. Output: Phân tích tình trạng nợ xấu, số lượng/ lần lặp lại, đề xuất cải thiện (sau khi chạy khoảng 3 tháng và thu thập được số lượng tệp lớn khoảng 300 mẫu)
+### Cập nhật thông tin Payment SLA (chưa chạy agent)
+Thực hiện trong phase 2 --> chưa làm kịp. Output: Phân tích tình trạng nợ xấu, số lượng/ lần lặp lại, đề xuất cải thiện (sau khi chạy khoảng 3 tháng và thu thập được số lượng tệp lớn khoảng 300 mẫu)
 ---
 
 ## Cấu trúc repo
