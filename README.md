@@ -2,7 +2,7 @@
 
 Hệ thống tự động hóa quy trình theo dõi và nhắc nợ cho bộ phận AR (Accounts Receivable).
 
-![Thumbnail](../aging_agent_thumbnail.png)
+![Thumbnail](aging_agent_thumbnail.png)
 
 ---
 
